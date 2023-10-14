@@ -29,6 +29,6 @@ app.get("/set-cookies" , (req , res) => {
 
 app.get('/read-cookies' , (req , res) =>{
         const cookies = req.cookies
-        console.log(cookies.newUser)
+        console.log(cookies)
         return res.status(200).send(cookies)
 })
