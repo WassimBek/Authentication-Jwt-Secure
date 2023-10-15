@@ -33,6 +33,25 @@ userSchema.pre('save' ,async function (next) {
     next()
 })
 
+//static method
+
+//after login i need to check if the account exist
+userSchema.statics.login = async(email , password) => {
+    //fist of all finding the user with email
+    const user = await User.findOne({email : email})
+    if (user) {
+        //if the user exist then i need to compare the password if it's maching
+        // but don't forget that you save the password in hash mso u need to 
+        // hash the password of the login first and check if it's mach with the password that storing in mongo db
+        // you can use that with compare methode 
+        const auth = await bcrypt.compare(password , user.password)
+        if(auth)
+            return user
+        throw  Error('incorrect password')
+    }
+    throw  Error('email not found')
+}
+
 const User = mongoose.model('user' , userSchema)
 
 module.exports = User

@@ -5,6 +5,7 @@ const handelError = (err) => {
         email : null ,
         password : null
     }
+
     if (err.code === 11000) {
         errors.email = 'That email is already registered';
         return errors;
@@ -14,6 +15,13 @@ const handelError = (err) => {
         Object.values(err.errors).forEach(({properties}) => {
             errors[properties.path] = properties.message
         })
+    }
+
+    if(err.message === 'email not found') {
+        errors.email = 'that email is not registered'
+    }
+    if(err.message === 'incorrect password') {
+        errors.password = 'incorrect password'
     }
     return errors
 }
@@ -42,13 +50,23 @@ module.exports.singup_post = async (req, res) => {
         const user = await User.create({email : email , password : password});
         const token = createToken(user._id)
         res.cookie("jwt" , token , {httpOnly : true , maxAge : maxDay * 1000})
-        res.status(201).json({user : user._id});
+           .status(201).json({user : user._id})
     } catch (error) {
         const errors = handelError(error)
         return res.status(400).json({ errors });
     }
 }
 
-module.exports.login_post = (req , res) => {
-    return res.status(200).json({message : "Check User"})
+module.exports.login_post = async(req , res) => {
+    try {
+        const {email , password} = req.body 
+        // use login methode that i created in user.js file  to check if the user exist
+        const user = await User.login(email , password)
+        const token = createToken(user._id)
+        res.cookie("jwt" , token , {httpOnly : true , maxAge : maxDay * 1000})
+        return res.status(200).json({user : user._id})
+    } catch (error) {
+        const errors = handelError(error)
+        return res.status(400).json({error : errors})
+    }
 }
