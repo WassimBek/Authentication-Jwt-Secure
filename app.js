@@ -1,8 +1,9 @@
 const express = require("express")
 const mongoose =  require("mongoose")
 const authRouter = require("./Routes/auth")
-const app = express()
 const cookieParser = require("cookie-parser")
+const {authRequire} = require("./middleware/authMiddleware")
+const app = express()
 const PORT = 8080 || process.env.PORT
 
 app.use(express.json())
@@ -25,6 +26,10 @@ app.get("/set-cookies" , (req , res) => {
         res.cookie('isEmployee' , true).send('set data to cookies is done')
         //or this 
         // res.setHeader('Set-Cookies' , 'newUser = false')
+})
+
+app.get("/home" , authRequire , (req , res) => {
+        return res.status(200).json({url : "Home Page"})
 })
 
 app.get('/read-cookies' , (req , res) =>{

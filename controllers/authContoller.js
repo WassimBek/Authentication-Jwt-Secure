@@ -50,7 +50,7 @@ module.exports.singup_post = async (req, res) => {
         const user = await User.create({email : email , password : password});
         const token = createToken(user._id)
         res.cookie("jwt" , token , {httpOnly : true , maxAge : maxDay * 1000})
-           .status(201).json({user : user._id})
+        return res.status(201).json({user : user._id})
     } catch (error) {
         const errors = handelError(error)
         return res.status(400).json({ errors });
@@ -64,9 +64,19 @@ module.exports.login_post = async(req , res) => {
         const user = await User.login(email , password)
         const token = createToken(user._id)
         res.cookie("jwt" , token , {httpOnly : true , maxAge : maxDay * 1000})
+        console.log(req.cookies)
         return res.status(200).json({user : user._id})
     } catch (error) {
         const errors = handelError(error)
         return res.status(400).json({error : errors})
     }
+}
+
+module.exports.logout_get = (req , res) => {
+    // when we logout we need to delete that jwt from the cookies
+    // but we can't do that so we need to change the value from the cookies
+    // of jwt 
+    res.cookie('jwt' , '' , {maxAge : 1})
+    // after we delete the cookies we need to redirect to login page
+    res.status(200).json({url : "redirect to login page"})
 }
